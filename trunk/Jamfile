@@ -1,0 +1,8 @@
+
+lib boost_thread : : <name>boost_thread		<search>/usr/lib	<variant>debug ;
+
+exe db : [ glob *.cpp ] boost_thread : <include>/usr/include/mysql <threading>multi ;
+
+doxygen db.doxygen : [ glob *.hpp ] ;
+
+boostbook db : db.doxygen ;
