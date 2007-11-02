@@ -1,0 +1,6 @@
+libmysqlclient15-dev
+firebird2.0-dev
+unixodbc-dev
+libsqlite3-dev
+libpq-dev
+
