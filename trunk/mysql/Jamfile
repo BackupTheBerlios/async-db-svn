@@ -1,0 +1,3 @@
+
+lib mysql : [ glob *.cpp ] : <include>../core <include>/usr/include/mysql ;
+ 

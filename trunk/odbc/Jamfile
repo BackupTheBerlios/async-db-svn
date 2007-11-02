@@ -1,0 +1,3 @@
+
+lib odbc : [ glob *.cpp ] : <include>../core ;
+ 

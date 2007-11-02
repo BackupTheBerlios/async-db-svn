@@ -1,0 +1,13 @@
+
+lib sqlite3 ;
+
+exe dbtest
+ :
+   main.cpp
+   ../core//core
+   ../sqlite3//sqlite3
+   sqlite3
+ :
+   <include>../core
+   <include>../sqlite3
+ ;

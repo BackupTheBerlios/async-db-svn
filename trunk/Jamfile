@@ -1,8 +1,10 @@
 
-lib boost_thread : : <name>boost_thread		<search>/usr/lib	<variant>debug ;
+build-project core ;
+build-project firebird ;
+build-project mysql ;
+build-project odbc ;
+#build-project oracle ;
+build-project postgresql ;
+build-project sqlite3 ;
+build-project test ;
 
-exe db : [ glob *.cpp ] boost_thread : <include>/usr/include/mysql <threading>multi ;
-
-doxygen db.doxygen : [ glob *.hpp ] ;
-
-boostbook db : db.doxygen ;
