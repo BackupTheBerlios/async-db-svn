@@ -5,18 +5,20 @@
 // http://www.boost.org/LICENSE_1_0.txt)
 //
 
-#include "soci-sqlite3.h"
+#include "sqlite3-blob.hpp"
 
-using namespace db;
+namespace db {
+namespace details {
+namespace sqlite3 {
 
-sqlite3_blob_backend::sqlite3_blob_backend(sqlite3_session_backend &session)
-    : session_(session), buf_(0), len_(0)
+blob_backend::blob_backend( session_backend & session )
+ : session_(session), buf_(0), len_(0)
 {
 }
 
-sqlite3_blob_backend::~sqlite3_blob_backend()
+blob_backend::~blob_backend()
 {
-    if (buf_)
+    if( buf_ )
     {
         delete [] buf_;
         buf_ = 0;
@@ -24,13 +26,12 @@ sqlite3_blob_backend::~sqlite3_blob_backend()
     }
 }
 
-std::size_t sqlite3_blob_backend::get_len()
+std::size_t blob_backend::get_len()
 {
     return len_;
 }
 
-std::size_t sqlite3_blob_backend::read(
-    std::size_t offset, char * buf, std::size_t toRead)
+std::size_t blob_backend::read( std::size_t offset, char * buf, std::size_t toRead )
 {
     size_t r = toRead;
 
@@ -39,15 +40,13 @@ std::size_t sqlite3_blob_backend::read(
     if (r > len_ - offset)
         r = len_ - offset;
 
-    memcpy(buf, buf_ + offset, r);
+    memcpy( buf, buf_ + offset, r );
 
     return r;
 }
 
 
-std::size_t sqlite3_blob_backend::write(
-    std::size_t offset, char const * buf,
-    std::size_t toWrite)
+std::size_t blob_backend::write( std::size_t offset, char const * buf, std::size_t toWrite )
 {
     const char* oldBuf = buf_;
     std::size_t oldLen = len_;
@@ -69,8 +68,7 @@ std::size_t sqlite3_blob_backend::write(
 }
 
 
-std::size_t sqlite3_blob_backend::append(
-    char const * buf, std::size_t toWrite)
+std::size_t blob_backend::append( char const * buf, std::size_t toWrite )
 {
     const char* oldBuf = buf_;
 
@@ -88,7 +86,7 @@ std::size_t sqlite3_blob_backend::append(
 }
 
 
-void sqlite3_blob_backend::trim(std::size_t newLen)
+void blob_backend::trim( std::size_t newLen )
 {
     const char* oldBuf = buf_;
     len_ = newLen;
@@ -100,7 +98,7 @@ void sqlite3_blob_backend::trim(std::size_t newLen)
     delete [] oldBuf;
 }
 
-std::size_t sqlite3_blob_backend::set_data(char const *buf, std::size_t toWrite)
+std::size_t blob_backend::set_data( char const *buf, std::size_t toWrite )
 {
     if (buf_)
     {
@@ -110,3 +108,7 @@ std::size_t sqlite3_blob_backend::set_data(char const *buf, std::size_t toWrite)
     }
     return write(0, buf, toWrite);
 }
+
+} // namespace sqlite
+} // namespace details
+} // namespace db

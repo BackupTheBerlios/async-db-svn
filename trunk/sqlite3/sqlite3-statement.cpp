@@ -5,44 +5,36 @@
 // http://www.boost.org/LICENSE_1_0.txt)
 //
 
-
-#include "soci-sqlite3.h"
-
+#include "sqlite3-statement.hpp"
+#include "sqlite3-session.hpp"
 #include <sstream>
 #include <algorithm>
 
-#ifdef _MSC_VER
-#pragma warning(disable:4355)
-#endif
+namespace db {
+namespace details {
+namespace sqlite3 {
 
-using namespace db;
-using namespace db::details;
 using namespace sqlite_api;
 
-sqlite3_statement_backend::sqlite3_statement_backend(
-    sqlite3_session_backend &session)
+statement_backend::statement_backend( session_backend & session )
     : session_(session), stmt_(0), dataCache_(), useData_(0),
       databaseReady_(false), boundByName_(false), boundByPos_(false)
 {
 }
 
-void sqlite3_statement_backend::alloc()
-{
-    // ...
-}
+void statement_backend::alloc() {}
 
-void sqlite3_statement_backend::clean_up()
+void statement_backend::clean_up()
 {
-    if (stmt_)
+    if( stmt_ )
     {
-        sqlite3_finalize(stmt_);
+        sqlite3_finalize( stmt_ );
         stmt_ = 0;
         databaseReady_ = false;
     }
 }
 
-void sqlite3_statement_backend::prepare(std::string const & query,
-    eStatementType /* eType */)
+void statement_backend::prepare(std::string const & query, eStatementType /* eType */)
 {
     clean_up();
 
@@ -66,7 +58,7 @@ void sqlite3_statement_backend::prepare(std::string const & query,
 
 // sqlite3_reset needs to be called before a prepared statment can
 // be executed a second time.
-void sqlite3_statement_backend::resetIfNeeded()
+void db::details::sqlite3::statement_backend::resetIfNeeded()
 {
     if (stmt_ && !databaseReady_)
     {
@@ -77,8 +69,8 @@ void sqlite3_statement_backend::resetIfNeeded()
 }
 
 // This is used by bulk operations
-statement_backend::execFetchResult
-sqlite3_statement_backend::loadRS(int totalRows)
+db::details::statement_backend::execFetchResult
+db::details::sqlite3::statement_backend::loadRS(int totalRows)
 {
     statement_backend::execFetchResult retVal = eSuccess;
     int numCols = -1;
@@ -105,7 +97,7 @@ sqlite3_statement_backend::loadRS(int totalRows)
             {
                 numCols = sqlite3_column_count(stmt_);
 
-                for (sqlite3_recordset::iterator it = dataCache_.begin();
+                for (recordset::iterator it = dataCache_.begin();
                     it != dataCache_.end(); ++it)
                 {
                     (*it).resize(numCols);
@@ -149,8 +141,8 @@ sqlite3_statement_backend::loadRS(int totalRows)
 }
 
 // This is used for non-bulk operations
-statement_backend::execFetchResult
-sqlite3_statement_backend::loadOne()
+db::details::statement_backend::execFetchResult
+db::details::sqlite3::statement_backend::loadOne()
 {
     statement_backend::execFetchResult retVal = eSuccess;
 
@@ -180,8 +172,8 @@ sqlite3_statement_backend::loadOne()
 }
 
 // Execute statements once for every row of useData
-statement_backend::execFetchResult
-sqlite3_statement_backend::bindAndExecute(int number)
+db::details::statement_backend::execFetchResult
+db::details::sqlite3::statement_backend::bindAndExecute(int number)
 {
     statement_backend::execFetchResult retVal = eNoData;
 
@@ -195,7 +187,7 @@ sqlite3_statement_backend::bindAndExecute(int number)
         for (int pos = 1; pos <= totalPositions; ++pos)
         {
             int bindRes = SQLITE_OK;
-            const sqlite3_column& curCol = useData_[row][pos-1];
+            const column& curCol = useData_[row][pos-1];
             if (curCol.isNull_)
                 bindRes = sqlite3_bind_null(stmt_, pos);
             else if (curCol.blobBuf_)
@@ -223,8 +215,8 @@ sqlite3_statement_backend::bindAndExecute(int number)
     return retVal;
 }
 
-statement_backend::execFetchResult
-sqlite3_statement_backend::execute(int number)
+db::details::statement_backend::execFetchResult
+db::details::sqlite3::statement_backend::execute(int number)
 {
     if (!stmt_)
         throw soci_error("No sqlite statement created");
@@ -249,29 +241,29 @@ sqlite3_statement_backend::execute(int number)
     return retVal;
 }
 
-statement_backend::execFetchResult
-sqlite3_statement_backend::fetch(int number)
+db::details::statement_backend::execFetchResult
+db::details::sqlite3::statement_backend::fetch(int number)
 {
     return loadRS(number);
 }
 
-int sqlite3_statement_backend::get_number_of_rows()
+int db::details::sqlite3::statement_backend::get_number_of_rows()
 {
     return static_cast<int>(dataCache_.size());
 }
 
-std::string sqlite3_statement_backend::rewrite_for_procedure_call(
+std::string db::details::sqlite3::statement_backend::rewrite_for_procedure_call(
     std::string const &query)
 {
     return query;
 }
 
-int sqlite3_statement_backend::prepare_for_describe()
+int db::details::sqlite3::statement_backend::prepare_for_describe()
 {
     return sqlite3_column_count(stmt_);
 }
 
-void sqlite3_statement_backend::describe_column(int colNum, eDataType & type,
+void db::details::sqlite3::statement_backend::describe_column(int colNum, eDataType & type,
                                              std::string & columnName)
 {
 
@@ -338,25 +330,26 @@ void sqlite3_statement_backend::describe_column(int colNum, eDataType & type,
     sqlite3_reset(stmt_);
 }
 
-sqlite3_standard_into_type_backend *
-sqlite3_statement_backend::make_into_type_backend()
+standard_into_type_backend * statement_backend::make_into_type_backend()
 {
-    return new sqlite3_standard_into_type_backend(*this);
+    return new standard_into_type_backend( *this );
 }
 
-sqlite3_standard_use_type_backend * sqlite3_statement_backend::make_use_type_backend()
+standard_use_type_backend * statement_backend::make_use_type_backend()
 {
-    return new sqlite3_standard_use_type_backend(*this);
+    return new standard_use_type_backend( *this );
 }
 
-sqlite3_vector_into_type_backend *
-sqlite3_statement_backend::make_vector_into_type_backend()
+vector_into_type_backend * statement_backend::make_vector_into_type_backend()
 {
-    return new sqlite3_vector_into_type_backend(*this);
+    return new vector_into_type_backend( *this );
 }
 
-sqlite3_vector_use_type_backend *
-sqlite3_statement_backend::make_vector_use_type_backend()
+vector_use_type_backend * statement_backend::make_vector_use_type_backend()
 {
-    return new sqlite3_vector_use_type_backend(*this);
+    return new vector_use_type_backend( *this );
 }
+
+} // namespace sqlite
+} // namespace details
+} // namespace db

@@ -6,21 +6,24 @@
 //
 
 
-#include "soci-sqlite3.h"
-#include "rowid.h"
-#include "common.h"
-#include "blob.h"
+#include "sqlite3-into.hpp"
+#include "sqlite3-statement.hpp"
+#include "sqlite3-rowid.hpp"
+#include "sqlite3-blob.hpp"
+#include "sqlite3-common.hpp"
+#include "../core/rowid.h"
+#include "../core/blob.h"
 
 #ifdef _MSC_VER
 #pragma warning(disable:4355)
 #define strtoll(s, p, b) static_cast<long long>(_strtoi64(s, p, b))
 #endif
 
-using namespace db;
-using namespace db::details;
-using namespace db::details::sqlite3;
+namespace db {
+namespace details {
+namespace sqlite3 {
 
-void sqlite3_standard_into_type_backend::define_by_pos(int & position, void * data,
+void standard_into_type_backend::define_by_pos(int & position, void * data,
                                                        eExchangeType type)
 {
     data_ = data;
@@ -28,12 +31,12 @@ void sqlite3_standard_into_type_backend::define_by_pos(int & position, void * da
     position_ = position++;
 }
 
-void sqlite3_standard_into_type_backend::pre_fetch()
+void standard_into_type_backend::pre_fetch()
 {
     // ...
 }
 
-void sqlite3_standard_into_type_backend::post_fetch(bool gotData,
+void standard_into_type_backend::post_fetch(bool gotData,
                                                bool calledFromFetch,
                                                eIndicator * ind)
 {
@@ -50,7 +53,7 @@ void sqlite3_standard_into_type_backend::post_fetch(bool gotData,
     if (gotData)
     {
         // first, deal with indicators
-        if (sqlite3_column_type(statement_.stmt_, pos) == SQLITE_NULL)
+        if( sqlite3_column_type(statement_.stmt_, pos) == SQLITE_NULL)
         {
             if (ind == NULL)
             {
@@ -145,7 +148,7 @@ void sqlite3_standard_into_type_backend::post_fetch(bool gotData,
             // RowID is internally identical to unsigned long
 
             rowid *rid = static_cast<rowid *>(data_);
-            sqlite3_rowid_backend *rbe = static_cast<sqlite3_rowid_backend *>(rid->get_backend());
+            db::details::sqlite3::rowid_backend *rbe = static_cast<db::details::sqlite3::rowid_backend *>(rid->get_backend());
             long long val = strtoll(buf, NULL, 10);
             rbe->value_ = static_cast<unsigned long>(val);
         }
@@ -153,8 +156,8 @@ void sqlite3_standard_into_type_backend::post_fetch(bool gotData,
         case eXBLOB:
         {
             blob *b = static_cast<blob *>(data_);
-            sqlite3_blob_backend *bbe =
-                static_cast<sqlite3_blob_backend *>(b->get_backend());
+            sqlite3::blob_backend *bbe =
+                static_cast<sqlite3::blob_backend *>(b->get_backend());
 
             buf = reinterpret_cast<const char*>(sqlite3_column_blob(
                                                    statement_.stmt_,
@@ -181,7 +184,11 @@ void sqlite3_standard_into_type_backend::post_fetch(bool gotData,
     }
 }
 
-void sqlite3_standard_into_type_backend::clean_up()
+void standard_into_type_backend::clean_up()
 {
     // ...
 }
+
+} // namespace sqlite
+} // namespace details
+} // namespace db

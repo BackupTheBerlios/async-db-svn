@@ -6,9 +6,12 @@
 //
 
 
-#include "soci-sqlite3.h"
-#include "rowid.h"
-#include "blob.h"
+#include "sqlite3-use.hpp"
+#include "sqlite3-statement.hpp"
+#include "sqlite3-rowid.hpp"
+#include "sqlite3-blob.hpp"
+#include "../core/rowid.h"
+#include "../core/blob.h"
 #include <limits>
 #include <sstream>
 
@@ -17,10 +20,11 @@
 #define snprintf _snprintf
 #endif
 
-using namespace db;
-using namespace db::details;
+namespace db {
+namespace details {
+namespace sqlite3 {
 
-void sqlite3_standard_use_type_backend::bind_by_pos(int & position, void * data,
+void standard_use_type_backend::bind_by_pos(int & position, void * data,
                                               eExchangeType type)
 {
     if (statement_.boundByName_)
@@ -36,7 +40,7 @@ void sqlite3_standard_use_type_backend::bind_by_pos(int & position, void * data,
     statement_.boundByPos_ = true;
 }
 
-void sqlite3_standard_use_type_backend::bind_by_name(std::string const & name,
+void standard_use_type_backend::bind_by_name(std::string const & name,
                                                void * data,
                                                eExchangeType type)
 {
@@ -62,7 +66,7 @@ void sqlite3_standard_use_type_backend::bind_by_name(std::string const & name,
     statement_.boundByName_ = true;
 }
 
-void sqlite3_standard_use_type_backend::pre_use(eIndicator const * ind)
+void standard_use_type_backend::pre_use(eIndicator const * ind)
 {
     statement_.useData_.resize(1);
     int pos = position_ - 1;
@@ -159,7 +163,7 @@ void sqlite3_standard_use_type_backend::pre_use(eIndicator const * ind)
             // RowID is internally identical to unsigned long
 
             rowid *rid = static_cast<rowid *>(data_);
-            sqlite3_rowid_backend *rbe = static_cast<sqlite3_rowid_backend *>(rid->get_backend());
+            db::details::sqlite3::rowid_backend *rbe = static_cast<db::details::sqlite3::rowid_backend *>(rid->get_backend());
 
             std::size_t const bufSize
             = std::numeric_limits<unsigned long>::digits10 + 2;
@@ -171,8 +175,8 @@ void sqlite3_standard_use_type_backend::pre_use(eIndicator const * ind)
         case eXBLOB:
         {
             blob *b = static_cast<blob *>(data_);
-            sqlite3_blob_backend *bbe =
-                static_cast<sqlite3_blob_backend *>(b->get_backend());
+            sqlite3::blob_backend *bbe =
+                static_cast<sqlite3::blob_backend *>(b->get_backend());
 
             std::size_t len = bbe->get_len();
             buf_ = new char[len];
@@ -196,7 +200,7 @@ void sqlite3_standard_use_type_backend::pre_use(eIndicator const * ind)
     }
 }
 
-void sqlite3_standard_use_type_backend::post_use(
+void standard_use_type_backend::post_use(
     bool /* gotData */, eIndicator * /* ind */)
 {
     // TODO: if sqlite3 allows to *get* data via this channel,
@@ -207,7 +211,7 @@ void sqlite3_standard_use_type_backend::post_use(
     clean_up();
 }
 
-void sqlite3_standard_use_type_backend::clean_up()
+void standard_use_type_backend::clean_up()
 {
     if (buf_ != NULL)
     {
@@ -215,3 +219,7 @@ void sqlite3_standard_use_type_backend::clean_up()
         buf_ = NULL;
     }
 }
+
+} // namespace sqlite
+} // namespace details
+} // namespace db

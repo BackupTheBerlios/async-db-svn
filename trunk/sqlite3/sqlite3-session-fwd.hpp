@@ -1,5 +1,5 @@
 //
-// sqlite3.hpp
+// sqlite3-factory.hpp
 // ~~~~~~~~
 //
 // Copyright (c) 2007 Daniel Pfeifer (purpleKarrot at gmail dot com)
@@ -8,26 +8,21 @@
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
 
-#ifndef __DB_SQLITE3_HPP__
-#define __DB_SQLITE3_HPP__
+#ifndef __SQLITE3_SESSION_FWD__
+#define __SQLITE3_SESSION_FWD__
 
 #if defined(_MSC_VER) && (_MSC_VER >= 1200)
 # pragma once
 #endif // defined(_MSC_VER) && (_MSC_VER >= 1200)
 
-//#include "../sqlite3/soci-sqlite3.h"
+namespace db {
+namespace details {
+namespace sqlite3 {
 
-namespace db
-{
+struct session_backend;
 
-class sqlite3
-{
-public:
-//	typedef db::details::sqlite3::session_backend backend_type;
-	typedef basic_session<sqlite3> session;
-};
-
+} // namespace sqlite
+} // namespace details
 } // namespace db
 
-#endif // __DB_SQLITE3_HPP__
-
+#endif // __SQLITE3_SESSION_FWD__

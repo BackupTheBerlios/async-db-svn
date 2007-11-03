@@ -1,6 +1,6 @@
 
 #include "soci.h"
-#include "soci-sqlite3.h"
+#include "../sqlite3/sqlite3.hpp"
 #include "sqlite3.hpp"
 #include <iostream>
 #include <istream>
@@ -21,7 +21,7 @@ int main()
 {
 	try
 	{
-		db::session sql( db::sqlite3_singleton, "database" );
+		db::session sql( db::details::sqlite3::singleton, "database" );
 
 		int count;
 

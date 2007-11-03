@@ -1,3 +1,3 @@
 
-lib sqlite3 : [ glob *.cpp ] : <include>../core ;
- 
+lib sqlite3 : [ glob *.cpp ] ;
+

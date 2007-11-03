@@ -6,8 +6,9 @@
 //
 
 
-#include "soci-sqlite3.h"
-#include "common.h"
+#include "sqlite3-use-vector.hpp"
+#include "sqlite3-common.hpp"
+#include "sqlite3-statement.hpp"
 #include <limits>
 #include <sstream>
 
@@ -16,11 +17,11 @@
 #define snprintf _snprintf
 #endif
 
-using namespace db;
-using namespace db::details;
-using namespace db::details::sqlite3;
+namespace db {
+namespace details {
+namespace sqlite3 {
 
-void sqlite3_vector_use_type_backend::bind_by_pos(int & position,
+void vector_use_type_backend::bind_by_pos(int & position,
                                             void * data,
                                             eExchangeType type)
 {
@@ -37,7 +38,7 @@ void sqlite3_vector_use_type_backend::bind_by_pos(int & position,
     statement_.boundByPos_ = true;
 }
 
-void sqlite3_vector_use_type_backend::bind_by_name(std::string const & name,
+void vector_use_type_backend::bind_by_name(std::string const & name,
                                              void * data,
                                              eExchangeType type)
 {
@@ -63,7 +64,7 @@ void sqlite3_vector_use_type_backend::bind_by_name(std::string const & name,
     statement_.boundByName_ = true;
 }
 
-void sqlite3_vector_use_type_backend::pre_use(eIndicator const * ind)
+void vector_use_type_backend::pre_use(eIndicator const * ind)
 {
     std::size_t const vsize = size();
 
@@ -196,7 +197,7 @@ void sqlite3_vector_use_type_backend::pre_use(eIndicator const * ind)
     }
 }
 
-std::size_t sqlite3_vector_use_type_backend::size()
+std::size_t vector_use_type_backend::size()
 {
     std::size_t sz = 0; // dummy initialization to please the compiler
     switch (type_)
@@ -217,7 +218,11 @@ std::size_t sqlite3_vector_use_type_backend::size()
     return sz;
 }
 
-void sqlite3_vector_use_type_backend::clean_up()
+void vector_use_type_backend::clean_up()
 {
     // ...
 }
+
+} // namespace sqlite
+} // namespace details
+} // namespace db

@@ -6,21 +6,21 @@
 //
 
 
-#include "soci-sqlite3.h"
-
-#include "common.h"
+#include "sqlite3-into-vector.hpp"
+#include "sqlite3-common.hpp"
+#include "sqlite3-statement.hpp"
 
 #ifdef _MSC_VER
 #pragma warning(disable:4355)
 #define strtoll(s, p, b) static_cast<long long>(_strtoi64(s, p, b))
 #endif
 
-using namespace db;
-using namespace db::details;
-using namespace db::details::sqlite3;
+namespace db {
+namespace details {
+namespace sqlite3 {
 
 
-void sqlite3_vector_into_type_backend::define_by_pos(int & position, void * data,
+void vector_into_type_backend::define_by_pos(int & position, void * data,
                                                eExchangeType type)
 {
     data_ = data;
@@ -28,7 +28,7 @@ void sqlite3_vector_into_type_backend::define_by_pos(int & position, void * data
     position_ = position++;
 }
 
-void sqlite3_vector_into_type_backend::pre_fetch()
+void vector_into_type_backend::pre_fetch()
 {
     // ...
 }
@@ -48,14 +48,14 @@ void setInVector(void *p, int indx, U const &val)
 
 } // namespace anonymous
 
-void sqlite3_vector_into_type_backend::post_fetch(bool gotData, eIndicator * ind)
+void vector_into_type_backend::post_fetch(bool gotData, eIndicator * ind)
 {
     if (gotData)
     {
         int endRow = static_cast<int>(statement_.dataCache_.size());
         for (int i = 0; i < endRow; ++i)
         {
-            const sqlite3_column& curCol =
+            const column& curCol =
                 statement_.dataCache_[i][position_-1];
 
             if (curCol.isNull_)
@@ -139,7 +139,7 @@ void sqlite3_vector_into_type_backend::post_fetch(bool gotData, eIndicator * ind
     }
 }
 
-void sqlite3_vector_into_type_backend::resize(std::size_t sz)
+void vector_into_type_backend::resize(std::size_t sz)
 {
     switch (type_)
     {
@@ -157,7 +157,7 @@ void sqlite3_vector_into_type_backend::resize(std::size_t sz)
     }
 }
 
-std::size_t sqlite3_vector_into_type_backend::size()
+std::size_t vector_into_type_backend::size()
 {
     std::size_t sz = 0; // dummy initialization to please the compiler
     switch (type_)
@@ -178,7 +178,11 @@ std::size_t sqlite3_vector_into_type_backend::size()
     return sz;
 }
 
-void sqlite3_vector_into_type_backend::clean_up()
+void vector_into_type_backend::clean_up()
 {
     // ...
 }
+
+} // namespace sqlite
+} // namespace details
+} // namespace db

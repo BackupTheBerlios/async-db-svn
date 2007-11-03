@@ -5,8 +5,8 @@
 // http://www.boost.org/LICENSE_1_0.txt)
 //
 
-#include "common.h"
-#include "soci-backend.h"
+#include "sqlite3-common.hpp"
+#include "../core/soci-backend.h"
 #include <cstdlib>
 #include <ctime>
 
