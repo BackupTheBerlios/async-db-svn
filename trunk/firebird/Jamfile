@@ -1,3 +1,0 @@
-
-lib firebird : [ glob *.cpp ] : <include>../core ;
- 

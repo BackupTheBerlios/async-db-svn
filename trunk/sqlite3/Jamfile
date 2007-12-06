@@ -1,3 +1,0 @@
-
-lib sqlite3 : [ glob *.cpp ] ;
-

@@ -1,3 +1,0 @@
-
-lib oracle : [ glob *.cpp ] : <include>../core ;
- 

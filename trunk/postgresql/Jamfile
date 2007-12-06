@@ -1,3 +1,0 @@
-
-lib postgresql : [ glob *.cpp ] : <include>../core <include>/usr/include/postgresql ;
- 
