@@ -5,11 +5,15 @@ Design:
 
 database  database                   connection
 driver    abstrac_database            impl (connection)
-error     exception                  error
-field     field + field_description  field + ?
+
 query     rowset                     statement
-record    row                        row
 result    abstract_rowset             impl (statement)
+
+record    row                        row
+
+field     field + field_description  field + ?
+
+error     exception                  error
 
 
 Dependencies:
