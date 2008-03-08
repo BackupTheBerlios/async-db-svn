@@ -1,0 +1,28 @@
+
+project : requirements <include>./include <warnings>off ;
+
+lib mysql : : <name>mysqlclient_r : : <include>/usr/include/mysql/ ;
+
+#doxygen async-db.html 
+#  :
+#    [ glob include/*.hpp ]
+#    [ glob include/impl/*/*.hpp ]
+#    [ glob include/detail/*.hpp ]
+#  :
+#    <doxygen:param>EXTRACT_ALL=YES 
+#  ;
+
+exe mysql-async
+  :
+    examples/mysql-async.cpp
+    examples/error_code.cpp
+    mysql
+  ;
+
+exe mysql-sync
+  :
+    examples/mysql-sync.cpp
+    examples/error_code.cpp
+    mysql
+  ;
+
