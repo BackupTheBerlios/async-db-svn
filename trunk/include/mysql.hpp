@@ -1,8 +1,8 @@
 #ifndef __ASYNC_DB_MYSQL_HPP__
 #define __ASYNC_DB_MYSQL_HPP__
 
-#include <mysql.h>
 #include <boost/asio.hpp>
+#include <mysql.h>
 
 
 #include "detail/error.hpp"
@@ -124,7 +124,7 @@ public:
 			throw basis_error( errnum, errmsg );
 		}
 	}
-	
+
 	template <typename Handler>
 	class handler_base
 	{
@@ -133,23 +133,23 @@ public:
 			io_service_(io_service), work_(io_service), handler_(handler)
 		{
 		}
-		
+
 		void post( int errnum, const char * errmsg )
 		{
-			io_service_.post( bind(handler_,errnum,errmsg) );			
+			io_service_.post( bind(handler_,errnum,errmsg) );
 		}
 
 	private:
 	    asio::io_service & io_service_;
 	    asio::io_service::work work_;
-		Handler handler_;		
+		Handler handler_;
 	};
-	
+
 	template <typename Handler>
 	class open_handler : public handler_base<Handler>
 	{
 	public:
-		open_handler(implementation_type & impl, const options & opt, 
+		open_handler(implementation_type & impl, const options & opt,
 				asio::io_service & io_service, Handler handler ) :
 					handler_base<Handler>(io_service,handler), impl_(impl), opt_(opt)
 		{
@@ -159,7 +159,7 @@ public:
 		{
 			unsigned int errnum = 0;
 			const char * errmsg = 0;
-			
+
 			if ( !mysql_real_connect(impl_, opt_.host(), opt_.user(), opt_.passwd(),
 					opt_.db(), opt_.port(), opt_.unix_socket(), opt_.clientflag() ) )
 			{
@@ -199,7 +199,7 @@ public:
 	class exec_once_handler : public handler_base<Handler>
 	{
 	public:
-		exec_once_handler(implementation_type & impl, Statement statement, 
+		exec_once_handler(implementation_type & impl, Statement statement,
 				asio::io_service & io_service, Handler handler ) :
 					handler_base<Handler>(io_service,handler),
 					impl_(impl), statement_(statement)
@@ -249,7 +249,7 @@ public:
 	{
 		exec_once( impl, "ROLLBACK", 0 );
 	}
-	
+
 	template<typename Handler>
 	void async_transaction( implementation_type & impl, Handler handler )
 	{
@@ -278,7 +278,7 @@ public:
 	}
 
 private:
-	
+
 	struct start_transaction_statement
 	{
 		const char * operator()()
@@ -286,7 +286,7 @@ private:
 			return "START TRANSACTION";
 		}
 	};
-	
+
 	struct commit_transaction_statement
 	{
 		const char * operator()()
@@ -294,7 +294,7 @@ private:
 			return "COMMIT";
 		}
 	};
-	
+
 	struct rollback_transaction_statement
 	{
 		const char * operator()()
@@ -302,7 +302,7 @@ private:
 			return "ROLLBACK";
 		}
 	};
-	
+
 	/// Helper class to run the work io_service in a thread.
 	class work_io_service_runner
 	{

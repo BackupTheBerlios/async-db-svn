@@ -1,0 +1,17 @@
+lib mysql
+   :
+   : <toolset>gcc
+     <name>mysqlclient_r
+   :
+   : <include>/usr/include/mysql/
+   ;
+
+lib mysql
+   :
+   : <toolset>msvc
+     <name>mysqlclient
+     <search>lib/debug
+   :
+   : <include>include
+     <define>_WIN32
+   ;

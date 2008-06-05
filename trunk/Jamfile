@@ -1,7 +1,5 @@
 
-project : requirements <include>./include <warnings>off ;
-
-lib mysql : : <name>mysqlclient_r : : <include>/usr/include/mysql/ ;
+project : requirements <include>./include ;
 
 #doxygen async-db.html 
 #  :
@@ -15,14 +13,12 @@ lib mysql : : <name>mysqlclient_r : : <include>/usr/include/mysql/ ;
 exe mysql-async
   :
     examples/mysql-async.cpp
-    examples/error_code.cpp
-    mysql
+    contrib/mysql//mysql
   ;
 
 exe mysql-sync
   :
     examples/mysql-sync.cpp
-    examples/error_code.cpp
-    mysql
+    contrib/mysql//mysql
   ;
 
