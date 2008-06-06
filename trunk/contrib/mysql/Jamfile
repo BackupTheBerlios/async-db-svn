@@ -9,7 +9,7 @@ lib mysql
 lib mysql
    :
    : <toolset>msvc
-     <name>mysqlclient
+     <name>libmysql
      <search>lib/debug
    :
    : <include>include

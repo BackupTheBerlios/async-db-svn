@@ -1,5 +1,5 @@
 
-project : requirements <include>./include ;
+project : requirements <include>. ;
 
 #doxygen async-db.html 
 #  :
@@ -10,15 +10,8 @@ project : requirements <include>./include ;
 #    <doxygen:param>EXTRACT_ALL=YES 
 #  ;
 
-exe mysql-async
+exe mysql-test
   :
-    examples/mysql-async.cpp
+    examples/mysql-test.cpp
     contrib/mysql//mysql
   ;
-
-exe mysql-sync
-  :
-    examples/mysql-sync.cpp
-    contrib/mysql//mysql
-  ;
-
