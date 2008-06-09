@@ -1,4 +1,4 @@
-#include <windows.h>
+//#include <windows.h>
 
 #include <boost/sql/mysql/connection.hpp>
 #include <boost/sql/mysql/statement.hpp>

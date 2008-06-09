@@ -1,0 +1,17 @@
+lib postgres
+   :
+   : <toolset>gcc
+     <name>pq
+   :
+   : <include>/usr/include/postgresql/
+   ;
+
+lib postgres
+   :
+   : <toolset>msvc
+     <name>libmysql
+     <search>lib/debug
+   :
+   : <include>include
+     <define>_WIN32
+   ;

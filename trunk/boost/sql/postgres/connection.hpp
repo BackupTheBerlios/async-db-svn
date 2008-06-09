@@ -1,7 +1,9 @@
 #ifndef BOOST_SQL_POSTGRES_CONNECTION_HPP
 #define BOOST_SQL_POSTGRES_CONNECTION_HPP
 
-#include <libpq-fe.h>
+#include <postgresql/libpq-fe.h>
+#include <postgresql/pg_config.h>
+#include <stdexcept>
 
 namespace boost
 {
@@ -25,7 +27,7 @@ public:
 	void open(const char* conninfo)
 	{
 		impl = PQconnectdb(conninfo);
-		if (PQstatus(pgconn) != CONNECTION_OK)
+		if (PQstatus(impl) != CONNECTION_OK)
 		{
 			throw std::runtime_error(PQerrorMessage(impl));
 		}
@@ -33,21 +35,22 @@ public:
 
 	unsigned long client_version()
 	{
-		return 0;//mysql_get_client_version();
+		return PG_VERSION_NUM;
 	}
 
 	unsigned long server_version()
 	{
-		return 0;//mysql_get_server_version(impl);
+		return PQserverVersion(impl);
 	}
 
 	void execute(const std::string& query)
 	{
-//		if (mysql_real_query(impl, query.c_str(), query.length()))
-//		{
-//			throw std::runtime_error(mysql_error(impl));
-//		}
-//		//mysql_field_count()
+		PGresult* result = PQexec(impl, query.c_str());
+		if( PQresultStatus(result) != PGRES_COMMAND_OK)
+		{
+			throw std::runtime_error(PQresultErrorMessage(result));
+		}
+		PQclear(result);
 	}
 
 	PGconn* implementation() const
