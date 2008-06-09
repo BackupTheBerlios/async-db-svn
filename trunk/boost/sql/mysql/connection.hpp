@@ -1,5 +1,5 @@
-#ifndef CONNECTION_H_
-#define CONNECTION_H_
+#ifndef BOOST_SQL_MYSQL_CONNECTION_HPP
+#define BOOST_SQL_MYSQL_CONNECTION_HPP
 
 #include <string>
 #include <stdexcept>
@@ -72,4 +72,4 @@ private:
 } // end namespace sql
 } // end namespace boost
 
-#endif /*CONNECTION_H_*/
+#endif /*BOOST_SQL_MYSQL_CONNECTION_HPP*/
