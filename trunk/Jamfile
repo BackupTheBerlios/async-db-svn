@@ -1,22 +1,34 @@
 
-project : requirements <include>. ;
+project
+  : requirements <include>.
+  ;
 
-#doxygen async-db.html 
-#  :
-#    [ glob include/*.hpp ]
-#    [ glob include/impl/*/*.hpp ]
-#    [ glob include/detail/*.hpp ]
-#  :
-#    <doxygen:param>EXTRACT_ALL=YES 
-#  ;
+obj mysql_obj
+  : example.cpp
+  : <define>TEST_MYSQL=1
+  ;
 
-exe mysql-test
-  : examples/mysql-test.cpp
+obj postgres_obj
+  : example.cpp
+  : <define>TEST_POSTGRES=1
+  ;
+
+obj sqlite3_obj
+  : example.cpp
+  : <define>TEST_SQLITE3=1
+  ;
+
+exe mysql
+  : mysql_obj
     contrib/mysql//mysql
   ;
 
-exe postgres-test
-  : examples/postgres-test.cpp
+exe postgres
+  : postgres_obj
     contrib/postgres//postgres
   ;
-  
+
+exe sqlite3
+  : sqlite3_obj
+    contrib/sqlite3//sqlite3
+  ;

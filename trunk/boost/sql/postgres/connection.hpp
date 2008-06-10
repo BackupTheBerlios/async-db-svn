@@ -3,6 +3,7 @@
 
 #include <postgresql/libpq-fe.h>
 #include <postgresql/pg_config.h>
+#include <boost/shared_ptr.hpp>
 #include <stdexcept>
 
 namespace boost
@@ -15,7 +16,8 @@ namespace postgres
 class connection
 {
 public:
-	connection() : impl(0)
+	connection() :
+		impl(0)
 	{
 	}
 
@@ -43,14 +45,13 @@ public:
 		return PQserverVersion(impl);
 	}
 
-	void execute(const std::string& query)
+	void execute(const std::string& cmd)
 	{
-		PGresult* result = PQexec(impl, query.c_str());
-		if( PQresultStatus(result) != PGRES_COMMAND_OK)
+		boost::shared_ptr<PGresult> res(PQexec(impl, cmd.c_str()), PQclear);
+		if (PQresultStatus(res.get()) != PGRES_COMMAND_OK)
 		{
-			throw std::runtime_error(PQresultErrorMessage(result));
+			throw std::runtime_error(PQresultErrorMessage(res.get()));
 		}
-		PQclear(result);
 	}
 
 	PGconn* implementation() const

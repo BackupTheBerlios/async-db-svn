@@ -3,7 +3,7 @@
 
 #include <string>
 #include <stdexcept>
-#include <mysql.h>
+#include <mysql/mysql.h>
 
 #include <boost/shared_ptr.hpp>
 

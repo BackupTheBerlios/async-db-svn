@@ -1,0 +1,8 @@
+lib sqlite3 ;
+
+lib sqlite3
+   : sqlite3.c
+   : <toolset>msvc
+   :
+   : <include>.
+   ;
