@@ -76,7 +76,7 @@ namespace sqlite3
 void connection::execute(const std::string& cmd)
 {
 	statement<> stmt(*this, cmd);
-	stmt(fusion::make_vector());
+	stmt();
 }
 
 } // end namespace sqlite3
