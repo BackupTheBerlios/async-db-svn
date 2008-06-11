@@ -19,21 +19,24 @@ class statement : public basic_statement<statement<BOOST_SQL_BASE_TEMPL_PARAMS>,
 	parameters<param_t> p;
 
 public:
-	statement(connection& conn, const std::string& query)
+	statement(connection& conn, const std::string& query) : query_str(query)
 	{
 		impl = mysql_stmt_init(conn.implementation());
 		if (!impl)
-		throw std::bad_alloc();
-
-		if (mysql_stmt_prepare(impl, query.c_str(), query.length()) )
-		{
-			throw std::runtime_error(mysql_stmt_error(impl));
-		}
+			throw std::bad_alloc();
 	}
 
 	~statement()
 	{
 		mysql_stmt_close(impl);
+	}
+
+	void prepare()
+	{
+		if (mysql_stmt_prepare(impl, query_str.c_str(), query_str.length()) )
+		{
+			throw std::runtime_error(mysql_stmt_error(impl));
+		}
 	}
 
 	void execute(const param_t& params)
@@ -48,6 +51,7 @@ public:
 
 private:
 	MYSQL_STMT* impl;
+	std::string query_str;
 };
 
 } // end namespace mysql

@@ -9,6 +9,7 @@ namespace db = boost::sql::mysql;
 # include <boost/sql/postgres.hpp>
 # define PARAMS "dbname=foo user=postgres password=postgres"
 namespace db = boost::sql::postgres;
+int boost::sql::postgres::stmt_impl_t::counter = 0;
 
 #elif TEST_SQLITE3
 
@@ -21,30 +22,41 @@ namespace db = boost::sql::sqlite3;
 #include <exception>
 #include <iostream>
 
+class Employees : public db::connection
+{
+public:
+	Employees() :
+#if TEST_POSTGRES
+		insert(*this, "INSERT INTO employee (id, name, salary) VALUES ($1, $2, $3)")
+#else
+		insert(*this, "INSERT INTO employee (id, name, salary) VALUES (?, ?, ?)")
+#endif
+	{
+		open(PARAMS);
+
+		std::cout << "client version: " << client_version() << std::endl;
+		std::cout << "server version: " << server_version() << std::endl;
+	}
+
+	db::statement<int, std::string, int> insert;
+};
+
 int main()
 {
 	try
 	{
-		db::connection conn;
+		Employees empl;
 
-		conn.open(PARAMS);
+		empl.execute("DROP TABLE employee");
 
-		std::cout << "client version: " << conn.client_version() << std::endl;
-		std::cout << "server version: " << conn.server_version() << std::endl;
-
-		conn.execute("DROP TABLE employee");
-
-		conn.execute("CREATE TABLE employee"
+		empl.execute("CREATE TABLE employee"
 			" ( id INT, name CHAR(20), salary INT, PRIMARY KEY (id) )");
 
-		conn.execute("INSERT INTO employee (id, name, salary) "
+		empl.execute("INSERT INTO employee (id, name, salary) "
 			"VALUES (1001, 'Thad Beaumont', 44000)");
 
-		db::statement<int, std::string, int> stmt(conn,
-				"INSERT INTO employee (id, name, salary) VALUES (?, ?, ?)");
-
-		stmt(1002, "Horst", 712);
-		stmt(1003, "Alfred", 7132);
+		empl.insert(1002, "Horst", 712);
+		empl.insert(1003, "Alfred", 7132);
 
 	} catch (std::exception& e)
 	{

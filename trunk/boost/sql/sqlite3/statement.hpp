@@ -21,13 +21,9 @@ class statement : public basic_statement<statement<BOOST_SQL_BASE_TEMPL_PARAMS>,
 	typedef typename basic_statement<statement, BOOST_SQL_BASE_TEMPL_PARAMS>::param_t param_t;
 
 public:
-	statement(connection& c, const std::string& cmd) : conn(c.implementation())
+	statement(connection& c, const std::string& query) :
+		stmt(0), conn(c), query_str(query)
 	{
-		if (sqlite3_prepare_v2(conn, cmd.c_str(), cmd.size(),
-						&stmt, 0) != SQLITE_OK)
-		{
-			throw std::runtime_error(sqlite3_errmsg(conn));
-		}
 	}
 
 	~statement()
@@ -35,17 +31,27 @@ public:
 		sqlite3_finalize(stmt);
 	}
 
+	void prepare()
+	{
+		if (sqlite3_prepare_v2(conn.implementation(), query_str.c_str(), query_str.size(),
+						&stmt, 0) != SQLITE_OK)
+		{
+			throw std::runtime_error(sqlite3_errmsg(conn.implementation()));
+		}
+	}
+
 	void execute(param_t params)
 	{
 		if( sqlite3_step(stmt) != SQLITE_DONE)
-			throw std::runtime_error(sqlite3_errmsg(conn));
+			throw std::runtime_error(sqlite3_errmsg(conn.implementation()));
 
 		sqlite3_reset(stmt);
 	}
 
 private:
 	sqlite3_stmt* stmt;
-	::sqlite3* conn;
+	connection& conn;
+	std::string query_str;
 };
 
 } // end namespace sqlite3

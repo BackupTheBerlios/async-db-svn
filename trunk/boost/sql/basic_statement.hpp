@@ -68,6 +68,10 @@ public:
 	typedef typename fusion::iterator_range<begin, end> param_t;
 
 public:
+	basic_statement() : prepared(false)
+	{
+	}
+
 	void operator()(BOOST_SQL_OPERATOR_PARAMS)
 	{
 		fusion_vector vec = fusion::make_vector(BOOST_SQL_BASE_OP_APPLY_PARAMS);
@@ -79,8 +83,17 @@ public:
 
 		std::cout << params << std::endl;
 
+		if(!prepared)
+		{
+			static_cast<Impl*>(this)->prepare();
+			prepared = true;
+		}
+
 		static_cast<Impl*>(this)->execute(params);
 	}
+
+private:
+	bool prepared;
 };
 
 } // end namespace sql
