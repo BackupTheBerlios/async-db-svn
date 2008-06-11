@@ -1,10 +1,10 @@
 #ifndef BOOST_SQL_MYSQL_PARAMETERS_HPP
 #define BOOST_SQL_MYSQL_PARAMETERS_HPP
 
-#include <mysql/mysql.h>
+#include <mysql.h>
 
-#include <boost/sql/mysql/buffer.hpp>
-#include <boost/sql/mysql/buffer_length.hpp>
+#include <boost/sql/buffer.hpp>
+#include <boost/sql/buffer_length.hpp>
 #include <boost/sql/mysql/traits.hpp>
 #include <boost/type_traits.hpp>
 

@@ -2,8 +2,11 @@
 #define BOOST_SQL_POSTGRES_STATEMENT_HPP
 
 #include <boost/sql/postgres/connection.hpp>
+#include <boost/sql/postgres/bind_param.hpp>
 #include <boost/sql/basic_statement.hpp>
 #include <boost/lexical_cast.hpp>
+#include <boost/fusion/algorithm/iteration/for_each.hpp>
+#include <boost/mpl/for_each.hpp>
 
 namespace boost
 {
@@ -17,7 +20,8 @@ class stmt_impl_t: public std::string
 {
 public:
 	stmt_impl_t() :
-		std::string("boost_sql_stmt_" + boost::lexical_cast<std::string>(counter++))
+		std::string("boost_sql_stmt_" + boost::lexical_cast<std::string>(
+				counter++))
 	{
 	}
 
@@ -29,6 +33,11 @@ template<BOOST_SQL_TEMPLATE_PARAMS>
 class statement : public basic_statement<statement<BOOST_SQL_BASE_TEMPL_PARAMS>,BOOST_SQL_BASE_TEMPL_PARAMS>
 {
 	typedef typename basic_statement<statement, BOOST_SQL_BASE_TEMPL_PARAMS>::param_t param_t;
+
+	enum
+	{
+		size = mpl::size<param_t>::value
+	};
 
 public:
 	statement(connection& c, const std::string& query) :
@@ -49,8 +58,12 @@ public:
 
 	void prepare()
 	{
+        Oid types[size];
+
+		mpl::for_each<param_t>(bind_oid(types));
+
 		boost::shared_ptr<PGresult> res(PQprepare(conn.implementation(), stmt.c_str(),
-				query_str.c_str(), 0 /*nparams*/, 0 /*argoids*/), PQclear);
+				query_str.c_str(), size, types), PQclear);
 
 		if (!res)
 			throw std::bad_alloc();
@@ -61,8 +74,14 @@ public:
 
 	void execute(const param_t& params)
 	{
+		char* values[size];
+		int lengths[size];
+		int formats[size];
+
+		fusion::for_each(params, bind_param(values,lengths,formats) );
+
 		boost::shared_ptr<PGresult> res(PQexecPrepared(conn.implementation(), stmt.c_str(),
-				0/*nparams*/, 0/*values*/, 0/*lengths*/, 0/*formats*/, 1), PQclear);
+				size, values, lengths, formats, 1), PQclear);
 
 		if (!res)
 			throw std::bad_alloc();

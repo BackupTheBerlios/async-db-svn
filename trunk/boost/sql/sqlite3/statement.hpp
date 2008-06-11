@@ -2,7 +2,9 @@
 #define BOOST_SQL_SQLITE3_STATEMENT_HPP
 
 #include <boost/sql/sqlite3/connection.hpp>
+#include <boost/sql/sqlite3/bind_param.hpp>
 #include <boost/sql/basic_statement.hpp>
+#include <boost/fusion/algorithm/iteration/for_each.hpp>
 
 #include <iostream>
 #include <string>
@@ -40,12 +42,25 @@ public:
 		}
 	}
 
-	void execute(param_t params)
+	void execute(const param_t& params)
 	{
-		if( sqlite3_step(stmt) != SQLITE_DONE)
+		if( sqlite3_reset(stmt) != SQLITE_OK )
 			throw std::runtime_error(sqlite3_errmsg(conn.implementation()));
 
-		sqlite3_reset(stmt);
+		try
+		{
+			fusion::for_each( params, bind_param(stmt) );
+		}
+		catch( int rc )
+		{
+			throw std::runtime_error(sqlite3_errmsg(conn.implementation()));
+		}
+
+		int (*fn)(sqlite3_stmt*) = sqlite3_column_count(stmt) ?
+				sqlite3_reset : sqlite3_step;
+		int rc = fn(stmt);
+		if( rc != SQLITE_DONE && rc != SQLITE_OK )
+			throw std::runtime_error(sqlite3_errmsg(conn.implementation()));
 	}
 
 private:

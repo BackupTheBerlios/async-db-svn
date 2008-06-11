@@ -1,8 +1,8 @@
 #ifndef BOOST_SQL_POSTGRES_CONNECTION_HPP
 #define BOOST_SQL_POSTGRES_CONNECTION_HPP
 
-#include <postgresql/libpq-fe.h>
-#include <postgresql/pg_config.h>
+#include <libpq-fe.h>
+#include <pg_config.h>
 #include <boost/shared_ptr.hpp>
 #include <stdexcept>
 

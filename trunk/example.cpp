@@ -14,7 +14,7 @@ int boost::sql::postgres::stmt_impl_t::counter = 0;
 #elif TEST_SQLITE3
 
 # include <boost/sql/sqlite3.hpp>
-# define PARAMS "sqlite3.db"
+# define PARAMS "../../../../sqlite3.db"
 namespace db = boost::sql::sqlite3;
 
 #endif

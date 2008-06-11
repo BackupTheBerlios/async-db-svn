@@ -3,32 +3,52 @@ project
   : requirements <include>.
   ;
 
-obj mysql_obj
-  : example.cpp
-  : <define>TEST_MYSQL=1
+lib pq sqlite3 ;
+
+lib sqlite3
+  : contrib/sqlite3/sqlite3.c
+  : <toolset>msvc
+  :
+  : <include>./contrib/sqlite3/
   ;
 
-obj postgres_obj
-  : example.cpp
-  : <define>TEST_POSTGRES=1
+lib mysql
+  :
+  : <name>mysqlclient_r
   ;
 
-obj sqlite3_obj
-  : example.cpp
-  : <define>TEST_SQLITE3=1
+lib mysql
+  :
+  : <toolset>msvc
+    <name>libmysql
+    <search>lib/debug
+  :
+  : <include>include
+    <define>_WIN32
   ;
 
-exe mysql
-  : mysql_obj
-    contrib/mysql//mysql
+exe my_test
+  : [ obj main
+      : example.cpp
+      : <define>TEST_MYSQL=1
+        <include>/usr/include/mysql/
+    ]
+    mysql
   ;
 
-exe postgres
-  : postgres_obj
-    contrib/postgres//postgres
+exe pg_test
+  : [ obj main
+      : example.cpp
+      : <define>TEST_POSTGRES=1
+        <include>/usr/include/postgresql/
+    ]
+    pq
   ;
 
-exe sqlite3
-  : sqlite3_obj
-    contrib/sqlite3//sqlite3
+exe li_test
+  : [ obj main
+      : example.cpp
+      : <define>TEST_SQLITE3=1
+    ]
+    sqlite3
   ;
