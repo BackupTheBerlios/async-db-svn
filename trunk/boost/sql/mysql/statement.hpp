@@ -3,9 +3,7 @@
 
 #include <boost/sql/mysql/connection.hpp>
 #include <boost/sql/mysql/parameters.hpp>
-
-#include <boost/fusion/include/mpl.hpp>
-#include <boost/fusion/include/as_vector.hpp> 
+#include <boost/sql/basic_statement.hpp>
 
 namespace boost
 {
@@ -14,17 +12,18 @@ namespace sql
 namespace mysql
 {
 
-template<typename Params, typename Results>
-class statement : private parameters<Params>
+template<BOOST_SQL_TEMPLATE_PARAMS>
+class statement : public basic_statement<statement<BOOST_SQL_BASE_TEMPL_PARAMS>,BOOST_SQL_BASE_TEMPL_PARAMS>
 {
-	typedef typename fusion::result_of::as_vector<Params>::type params_type;
-	
+	typedef typename basic_statement<statement, BOOST_SQL_BASE_TEMPL_PARAMS>::param_t param_t;
+	parameters<param_t> p;
+
 public:
 	statement(connection& conn, const std::string& query)
 	{
 		impl = mysql_stmt_init(conn.implementation());
 		if (!impl)
-			throw std::bad_alloc();
+		throw std::bad_alloc();
 
 		if (mysql_stmt_prepare(impl, query.c_str(), query.length()) )
 		{
@@ -32,17 +31,20 @@ public:
 		}
 	}
 
-	void execute(const params_type& params)
+	~statement()
 	{
-		bind(impl, params);
-		
+		mysql_stmt_close(impl);
+	}
+
+	void execute(const param_t& params)
+	{
+		p.bind(impl, params);
+
 		if (mysql_stmt_execute(impl))
 		{
 			throw std::runtime_error(mysql_stmt_error(impl));
 		}
 	}
-
-	bool fetch(Results& results);
 
 private:
 	MYSQL_STMT* impl;

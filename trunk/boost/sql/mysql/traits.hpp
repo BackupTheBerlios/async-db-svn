@@ -1,7 +1,7 @@
 #ifndef BOOST_DATABASE_IMPL_MYSQL_TRAITS
 #define BOOST_DATABASE_IMPL_MYSQL_TRAITS
 
-#include <mysql.h>
+#include <mysql/mysql.h>
 #include <boost/cstdint.hpp>
 
 namespace boost

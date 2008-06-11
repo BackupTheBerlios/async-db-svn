@@ -1,7 +1,7 @@
 #if TEST_MYSQL
 
-# include <boost/sql/mysql/connection.hpp>
-# define PARAMS "testdb", "root", "korowa"
+# include <boost/sql/mysql.hpp>
+# define PARAMS "testdb", "root", "password"
 namespace db = boost::sql::mysql;
 
 #elif TEST_POSTGRES
@@ -40,10 +40,11 @@ int main()
 		conn.execute("INSERT INTO employee (id, name, salary) "
 			"VALUES (1001, 'Thad Beaumont', 44000)");
 
-//		db::statement<boost::mpl::vector<int, std::string, int> > stmt(conn,
-//				"INSERT INTO employee (id, name, salary) VALUES (?, ?, ?)");
-//
-//		stmt(boost::fusion::make_vector(1002, "Horst", 712));
+		db::statement<int, std::string, int> stmt(conn,
+				"INSERT INTO employee (id, name, salary) VALUES (?, ?, ?)");
+
+		stmt(1002, "Horst", 712);
+		stmt(1003, "Alfred", 7132);
 
 	} catch (std::exception& e)
 	{

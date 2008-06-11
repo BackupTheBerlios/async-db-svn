@@ -8,10 +8,10 @@ obj mysql_obj
   : <define>TEST_MYSQL=1
   ;
 
-obj postgres_obj
-  : example.cpp
-  : <define>TEST_POSTGRES=1
-  ;
+#obj postgres_obj
+#  : example.cpp
+#  : <define>TEST_POSTGRES=1
+#  ;
 
 obj sqlite3_obj
   : example.cpp
@@ -23,10 +23,10 @@ exe mysql
     contrib/mysql//mysql
   ;
 
-exe postgres
-  : postgres_obj
-    contrib/postgres//postgres
-  ;
+#exe postgres
+#  : postgres_obj
+#    contrib/postgres//postgres
+#  ;
 
 exe sqlite3
   : sqlite3_obj

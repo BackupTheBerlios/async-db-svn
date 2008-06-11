@@ -2,16 +2,11 @@
 #define BOOST_SQL_SQLITE3_STATEMENT_HPP
 
 #include <boost/sql/sqlite3/connection.hpp>
-
-#include <boost/fusion/include/mpl.hpp>
-#include <boost/fusion/include/as_vector.hpp>
-
-#include <boost/mpl/vector.hpp>
+#include <boost/sql/basic_statement.hpp>
 
 #include <iostream>
 #include <string>
 
-#include <boost/sql/basic_statement.hpp>
 
 namespace boost
 {
@@ -21,9 +16,9 @@ namespace sqlite3
 {
 
 template<BOOST_SQL_TEMPLATE_PARAMS>
-class statement : public basic_statement<BOOST_SQL_BASE_TEMPL_PARAMS>
+class statement : public basic_statement<statement<BOOST_SQL_BASE_TEMPL_PARAMS>, BOOST_SQL_BASE_TEMPL_PARAMS>
 {
-	typedef typename basic_statement<BOOST_SQL_BASE_TEMPL_PARAMS>::param_t param_t;
+	typedef typename basic_statement<statement, BOOST_SQL_BASE_TEMPL_PARAMS>::param_t param_t;
 
 public:
 	statement(connection& c, const std::string& cmd) : conn(c.implementation())
@@ -44,6 +39,8 @@ public:
 	{
 		if( sqlite3_step(stmt) != SQLITE_DONE)
 			throw std::runtime_error(sqlite3_errmsg(conn));
+
+		sqlite3_reset(stmt);
 	}
 
 private:

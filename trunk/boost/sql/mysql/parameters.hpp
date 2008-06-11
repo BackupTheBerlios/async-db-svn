@@ -1,7 +1,7 @@
 #ifndef BOOST_SQL_MYSQL_PARAMETERS_HPP
 #define BOOST_SQL_MYSQL_PARAMETERS_HPP
 
-#include <mysql.h>
+#include <mysql/mysql.h>
 
 #include <boost/sql/mysql/buffer.hpp>
 #include <boost/sql/mysql/buffer_length.hpp>

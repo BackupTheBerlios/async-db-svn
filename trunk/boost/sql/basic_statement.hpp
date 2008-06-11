@@ -6,7 +6,13 @@
 #include <boost/mpl/vector.hpp>
 #include <boost/mpl/size.hpp>
 
+#include <boost/fusion/adapted/mpl.hpp>
+#include <boost/fusion/mpl.hpp>
+
 #include <boost/fusion/container/vector.hpp>
+#include <boost/fusion/container/vector/convert.hpp>
+#include <boost/fusion/container/generation/make_vector.hpp>
+
 #include <boost/fusion/sequence/intrinsic/begin.hpp>
 #include <boost/fusion/view/iterator_range.hpp>
 #include <boost/fusion/iterator/advance.hpp>
@@ -48,7 +54,7 @@ namespace boost
 namespace sql
 {
 
-template<BOOST_SQL_TEMPLATE_PARAMS>
+template<typename Impl, BOOST_SQL_TEMPLATE_PARAMS>
 class basic_statement
 {
 	typedef typename mpl::vector<BOOST_SQL_BASE_TEMPL_PARAMS>::type mpl_vector;
@@ -73,7 +79,7 @@ public:
 
 		std::cout << params << std::endl;
 
-//		execute(params);
+		static_cast<Impl*>(this)->execute(params);
 	}
 };
 
