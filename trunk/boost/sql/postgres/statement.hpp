@@ -3,10 +3,11 @@
 
 #include <boost/sql/postgres/connection.hpp>
 #include <boost/sql/postgres/bind_param.hpp>
-#include <boost/sql/basic_statement.hpp>
+#include <boost/sql/executable.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/fusion/algorithm/iteration/for_each.hpp>
 #include <boost/mpl/for_each.hpp>
+#include <boost/fusion/mpl.hpp>
 
 namespace boost
 {
@@ -29,19 +30,17 @@ private:
 	static int counter;
 };
 
-template<BOOST_SQL_TEMPLATE_PARAMS>
-class statement : public basic_statement<statement<BOOST_SQL_BASE_TEMPL_PARAMS>,BOOST_SQL_BASE_TEMPL_PARAMS>
+template<typename Param>
+class statement : public executable<statement<Param>, Param>
 {
-	typedef typename basic_statement<statement, BOOST_SQL_BASE_TEMPL_PARAMS>::param_t param_t;
-
 	enum
 	{
-		size = mpl::size<param_t>::value
+		size = mpl::size<Param>::value
 	};
 
 public:
 	statement(connection& c, const std::string& query) :
-		conn(c), query_str(query)
+		conn(c), query_str(query), prepared(false)
 	{
 	}
 
@@ -60,7 +59,7 @@ public:
 	{
         Oid types[size];
 
-		mpl::for_each<param_t>(bind_oid(types));
+		mpl::for_each<Param>(bind_oid(types));
 
 		boost::shared_ptr<PGresult> res(PQprepare(conn.implementation(), stmt.c_str(),
 				query_str.c_str(), size, types), PQclear);
@@ -70,10 +69,15 @@ public:
 
 		if (PQresultStatus(res.get()) != PGRES_COMMAND_OK)
 			throw std::runtime_error(PQresultErrorMessage(res.get()));
+
+		prepared = true;
 	}
 
-	void execute(const param_t& params)
+	void execute(const Param& params)
 	{
+		if(!prepared)
+			prepare();
+
 		char* values[size];
 		int lengths[size];
 		int formats[size];
@@ -96,6 +100,7 @@ private:
 	stmt_impl_t stmt;
 	connection& conn;
 	std::string query_str;
+	bool prepared;
 };
 
 } // end namespace postgres

@@ -3,9 +3,8 @@
 
 #include <boost/sql/sqlite3/connection.hpp>
 #include <boost/sql/sqlite3/bind_param.hpp>
-#include <boost/sql/basic_statement.hpp>
 #include <boost/fusion/algorithm/iteration/for_each.hpp>
-
+#include <boost/sql/executable.hpp>
 #include <iostream>
 #include <string>
 
@@ -17,14 +16,12 @@ namespace sql
 namespace sqlite3
 {
 
-template<BOOST_SQL_TEMPLATE_PARAMS>
-class statement : public basic_statement<statement<BOOST_SQL_BASE_TEMPL_PARAMS>, BOOST_SQL_BASE_TEMPL_PARAMS>
+template<typename Param = fusion::vector<> >
+class statement : public executable<statement<Param>, Param>
 {
-	typedef typename basic_statement<statement, BOOST_SQL_BASE_TEMPL_PARAMS>::param_t param_t;
-
 public:
 	statement(connection& c, const std::string& query) :
-		stmt(0), conn(c), query_str(query)
+		stmt(0), conn(c), query_str(query), prepared(false)
 	{
 	}
 
@@ -40,10 +37,15 @@ public:
 		{
 			throw std::runtime_error(sqlite3_errmsg(conn.implementation()));
 		}
+
+		prepared = true;
 	}
 
-	void execute(const param_t& params)
+	void execute(const Param& params)
 	{
+		if(!prepared)
+			prepare();
+
 		if( sqlite3_reset(stmt) != SQLITE_OK )
 			throw std::runtime_error(sqlite3_errmsg(conn.implementation()));
 
@@ -67,6 +69,7 @@ private:
 	sqlite3_stmt* stmt;
 	connection& conn;
 	std::string query_str;
+	bool prepared;
 };
 
 } // end namespace sqlite3

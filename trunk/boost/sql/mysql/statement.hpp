@@ -3,7 +3,7 @@
 
 #include <boost/sql/mysql/connection.hpp>
 #include <boost/sql/mysql/parameters.hpp>
-#include <boost/sql/basic_statement.hpp>
+#include <boost/sql/executable.hpp>
 
 namespace boost
 {
@@ -12,14 +12,14 @@ namespace sql
 namespace mysql
 {
 
-template<BOOST_SQL_TEMPLATE_PARAMS>
-class statement : public basic_statement<statement<BOOST_SQL_BASE_TEMPL_PARAMS>,BOOST_SQL_BASE_TEMPL_PARAMS>
+template<typename Param>
+class statement : public executable<statement<Param>, Param>
 {
-	typedef typename basic_statement<statement, BOOST_SQL_BASE_TEMPL_PARAMS>::param_t param_t;
-	parameters<param_t> p;
+	parameters<Param> p;
 
 public:
-	statement(connection& conn, const std::string& query) : query_str(query)
+	statement(connection& conn, const std::string& query) :
+		query_str(query), prepared(false)
 	{
 		impl = mysql_stmt_init(conn.implementation());
 		if (!impl)
@@ -33,14 +33,17 @@ public:
 
 	void prepare()
 	{
-		if (mysql_stmt_prepare(impl, query_str.c_str(), query_str.length()) )
-		{
+		if (mysql_stmt_prepare(impl, query_str.c_str(), query_str.length()))
 			throw std::runtime_error(mysql_stmt_error(impl));
-		}
+
+		prepared = true;
 	}
 
-	void execute(const param_t& params)
+	void execute(const Param& params)
 	{
+		if (!prepared)
+			prepare();
+
 		p.bind(impl, params);
 
 		if (mysql_stmt_execute(impl))
@@ -52,6 +55,7 @@ public:
 private:
 	MYSQL_STMT* impl;
 	std::string query_str;
+	bool prepared;
 };
 
 } // end namespace mysql

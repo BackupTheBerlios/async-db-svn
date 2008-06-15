@@ -132,10 +132,10 @@ class parameters : private
 		>::type
 	>::type
 {
-	typedef typename fusion::result_of::as_vector<Seq>::type params_type;
+//	typedef typename fusion::result_of::as_vector<Seq>::type params_type;
 
 public:
-	void bind(MYSQL_STMT* stmt, const params_type& params)
+	void bind(MYSQL_STMT* stmt, const Seq& params)
 	{
 		this->clear_param();
 
