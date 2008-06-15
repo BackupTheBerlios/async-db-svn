@@ -1,3 +1,8 @@
+/**************************************************************
+ * Copyright (c) 2008 Daniel Pfeifer                          *
+ *                                                            *
+ * Distributed under the Boost Software License, Version 1.0. *
+ **************************************************************/
 #if TEST_MYSQL
 
 # include <boost/sql/mysql.hpp>
@@ -23,14 +28,15 @@ namespace db = boost::sql::sqlite3;
 #include <iostream>
 #include <boost/fusion/tuple.hpp>
 
-class Employees : public db::connection
+class Employees: public db::connection
 {
 public:
 	Employees() :
 #if TEST_POSTGRES
-		insert(*this, "INSERT INTO employee (id, name, salary) VALUES ($1, $2, $3)")
+				insert(*this,
+						"INSERT INTO employee (id, name, salary) VALUES ($1, $2, $3)")
 #else
-		insert(*this, "INSERT INTO employee (id, name, salary) VALUES (?, ?, ?)")
+	insert(*this, "INSERT INTO employee (id, name, salary) VALUES (?, ?, ?)")
 #endif
 	{
 		open(PARAMS);

@@ -1,3 +1,8 @@
+/**************************************************************
+ * Copyright (c) 2008 Daniel Pfeifer                          *
+ *                                                            *
+ * Distributed under the Boost Software License, Version 1.0. *
+ **************************************************************/
 #ifndef BOOST_SQL_SQLITE3_BIND_PARAM_HPP
 #define BOOST_SQL_SQLITE3_BIND_PARAM_HPP
 

@@ -1,3 +1,9 @@
+/**************************************************************
+ * Copyright (c) 2008 Daniel Pfeifer                          *
+ *                                                            *
+ * Distributed under the Boost Software License, Version 1.0. *
+ **************************************************************/
+#ifndef BOOST_PP_IS_ITERATING
 #ifndef BOOST_SQL_EXECUTABLE_HPP
 #define BOOST_SQL_EXECUTABLE_HPP
 
@@ -11,7 +17,6 @@ namespace sql
 
 //inherit from this class to get operator()
 //with elements from Seq as arguments
-//TODO: use preprocessor to generate
 
 template<typename Impl, typename Seq, typename Enable = void>
 struct executable
@@ -28,40 +33,30 @@ struct executable<Impl, Seq,
 	}
 };
 
-template<typename Impl, typename Seq>
-struct executable<Impl, Seq, typename enable_if<typename is_same<
-		typename mpl::size<Seq>::type, mpl::int_<1>::type>::type>::type>
-{
-	template<typename T0>
-	void operator()(T0 arg0)
-	{
-		static_cast<Impl*> (this)->execute(Seq(arg0));
-	}
-};
-
-template<typename Impl, typename Seq>
-struct executable<Impl, Seq, typename enable_if<typename is_same<
-		typename mpl::size<Seq>::type, mpl::int_<2>::type>::type>::type>
-{
-	template<typename T0, typename T1>
-	void operator()(T0 arg0, T1 arg1)
-	{
-		static_cast<Impl*> (this)->execute(Seq(arg0, arg1));
-	}
-};
-
-template<typename Impl, typename Seq>
-struct executable<Impl, Seq, typename enable_if<typename is_same<
-		typename mpl::size<Seq>::type, mpl::int_<3>::type>::type>::type>
-{
-	template<typename T0, typename T1, typename T2>
-	void operator()(T0 arg0, T1 arg1, T2 arg2)
-	{
-		static_cast<Impl*> (this)->execute(Seq(arg0, arg1, arg2));
-	}
-};
+#define BOOST_PP_FILENAME_1 <boost/sql/executable.hpp>
+#define BOOST_PP_ITERATION_LIMITS (1, FUSION_MAX_VECTOR_SIZE)
+#include BOOST_PP_ITERATE()
 
 } // end namespace sql
 } // end namespace boost
 
 #endif /*BOOST_SQL_EXECUTABLE_HPP*/
+
+#else /*BOOST_PP_IS_ITERATING*/
+
+#define N BOOST_PP_ITERATION()
+
+template<typename Impl, typename Seq>
+struct executable<Impl, Seq, typename enable_if<typename is_same<
+typename mpl::size<Seq>::type, mpl::int_<N>::type>::type>::type>
+{
+	template<BOOST_PP_ENUM_PARAMS(N, typename T)>
+	void operator()(BOOST_PP_ENUM_BINARY_PARAMS(N, T, arg))
+	{
+		static_cast<Impl*> (this)->execute(Seq(BOOST_PP_ENUM_PARAMS(N, arg)));
+	}
+};
+
+#undef N
+
+#endif /*BOOST_PP_IS_ITERATING*/
